@@ -172,3 +172,14 @@ cython_debug/
 
 # PyPI configuration file
 .pypirc
+
+# Environment files
+.env
+*.env
+!airflow.env
+
+# Data files
+data/
+*.json
+*.parquet
+*.db
