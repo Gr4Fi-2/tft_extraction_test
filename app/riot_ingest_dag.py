@@ -86,28 +86,32 @@ def fetch_match_details(match_id: str) -> Dict[str, Any]:
     response.raise_for_status()
     return response.json()
 
-def process_match_data(match_data: Dict[str, Any]) -> Dict[str, Any]:
+def process_match_data(match_data: Dict[str, Any], puuid: str) -> Dict[str, Any]:
     """
-    Extract relevant data from match response.
-    
+    Extract relevant data from match response for the given player.
+
     Args:
         match_data: Raw match data from API
-    
+        puuid: Player's unique PUUID
+
     Returns:
         Processed match data
     """
     metadata = match_data.get("metadata", {})
     info = match_data.get("info", {})
-    
+
+    participants = info.get("participants", [])
+    player = next((p for p in participants if p.get("puuid") == puuid), {})
+
     return {
         "match_id": metadata.get("match_id"),
         "game_datetime": datetime.fromtimestamp(info.get("game_datetime", 0) / 1000),
-        "placement": info.get("placement"),
-        "level": info.get("level"),
-        "gold_left": info.get("gold_left"),
-        "last_round": info.get("last_round"),
-        "players_eliminated": info.get("players_eliminated"),
-        "time_eliminated": info.get("time_eliminated"),
+        "placement": player.get("placement"),
+        "level": player.get("level"),
+        "gold_left": player.get("gold_left"),
+        "last_round": player.get("last_round"),
+        "players_eliminated": player.get("players_eliminated"),
+        "time_eliminated": player.get("time_eliminated"),
         "raw_data": json.dumps(match_data)
     }
 
@@ -144,7 +148,7 @@ def fetch_and_store_matches(**context) -> None:
         for match_id in match_ids:
             try:
                 match_data = fetch_match_details(match_id)
-                processed_data = process_match_data(match_data)
+                processed_data = process_match_data(match_data, puuid)
                 
                 # Insert into database
                 conn.execute("""
@@ -210,4 +214,5 @@ with DAG(
     )
 
     # Set up task dependencies
-    daily_update
+    daily_update >> historical_load
+
