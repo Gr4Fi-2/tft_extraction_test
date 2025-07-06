@@ -176,7 +176,7 @@ cython_debug/
 # Environment files
 .env
 *.env
-!airflow.env
+!app/configs/airflow.env
 
 # Data files
 data/

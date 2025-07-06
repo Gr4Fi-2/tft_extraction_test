@@ -210,4 +210,4 @@ with DAG(
     )
 
     # Set up task dependencies
-    daily_update
+    historical_load >> daily_update
