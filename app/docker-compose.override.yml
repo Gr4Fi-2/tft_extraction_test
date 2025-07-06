@@ -1,0 +1,26 @@
+version: '3'
+
+services:
+  superset:
+    image: apache/superset
+    environment:
+      - SUPERSET_SECRET_KEY=supersecret
+    ports:
+      - "8088:8088"
+    volumes:
+      - superset_home:/app/superset_home
+    command: >
+      bash -c "
+        superset db upgrade &&
+        superset fab create-admin --username admin --firstname admin --lastname admin --email admin@superset.com --password admin &&
+        superset init &&
+        superset run -h 0.0.0.0 -p 8088
+      "
+
+  trino:
+    image: trinodb/trino
+    ports:
+      - "8081:8080"
+
+volumes:
+  superset_home:
