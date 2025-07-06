@@ -9,7 +9,7 @@ services:
       - AIRFLOW__CORE__FERNET_KEY=YOUR_FERNET_KEY
       - AIRFLOW__CORE__LOAD_EXAMPLES=False
     env_file:
-      - ./configs/airflow.env
+      - ./airflow.env
     volumes:
       - ./dags:/opt/airflow/dags
       - ./data:/opt/airflow/data
